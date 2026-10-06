@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Жасанды интеллект тесті</title>
+<style>
+:root{--bg:#f3f7f6;--card:#fff;--ink:#12302c;--mute:#5b7370;--line:#d3e0dd;--acc:#0e7c6b;--accbg:#dff3ee;--ok:#1d8a4b;--okbg:#dff5e6;--bad:#c23b3b;--badbg:#fbe4e4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b19;--card:#162826;--ink:#e6f2ef;--mute:#93aeaa;--line:#2a403d;--acc:#4cc9b0;--accbg:#1b3a35;--ok:#5fd68a;--okbg:#17392a;--bad:#ff8585;--badbg:#401f1f}}
+:root[data-theme="dark"]{--bg:#0e1b19;--card:#162826;--ink:#e6f2ef;--mute:#93aeaa;--line:#2a403d;--acc:#4cc9b0;--accbg:#1b3a35;--ok:#5fd68a;--okbg:#17392a;--bad:#ff8585;--badbg:#401f1f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito","Segoe UI",system-ui,sans-serif;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;line-height:1.2;margin:8px 0 8px}
+p{margin:0 0 14px;color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 16px}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .3s}
+.meta{display:flex;justify-content:space-between;font-size:.9rem;color:var(--mute)}
+.q{font-size:1.15rem;font-weight:700;margin:0 0 14px}
+.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;font:inherit;color:inherit;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer}
+.opt b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accbg);color:var(--acc);display:grid;place-items:center;font-size:.9rem}
+.opt:hover:not(:disabled){border-color:var(--acc)}
+.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.bad{border-color:var(--bad);background:var(--badbg)}
+.opt:disabled{cursor:default}
+.btn{font:inherit;font-weight:700;background:var(--acc);color:#fff;border:0;border-radius:12px;padding:12px 22px;cursor:pointer}
+:root:not([data-theme="light"]) .btn{color:#06201b}
+.btn.alt{background:var(--accbg);color:var(--acc)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.score{font-size:3rem;font-weight:800;color:var(--acc);margin:0;line-height:1}
+.rev{border-top:1px solid var(--line);padding:12px 0}
+.rev small{color:var(--mute)}
+.hide{display:none}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<section id="start" class="card">
+<h1>Жасанды интеллект</h1>
+<p>Информатика, 9-сынып. 25 сұрақ, әр сұраққа бір дұрыс жауап. Жауапты таңдасаңыз, нәтиже бірден көрсетіледі.</p>
+<button class="btn" id="go">Тестті бастау</button>
+</section>
+
+<section id="quiz" class="hide">
+<div class="meta"><span id="num"></span><span id="sc"></span></div>
+<div class="bar"><i id="pb"></i></div>
+<div class="card">
+<p class="q" id="qt"></p>
+<div id="opts"></div>
+<div class="row"><button class="btn hide" id="next">Келесі сұрақ</button></div>
+</div>
+</section>
+
+<section id="end" class="card hide">
+<p class="score" id="fin"></p>
+<h1 id="grade"></h1>
+<p id="msg"></p>
+<div class="row"><button class="btn" id="again">Қайта тапсыру</button></div>
+<div id="rev"></div>
+</section>
+</main>
+<script>
+const Q=[
+["Жасанды интеллект дегеніміз не?",["Компьютердің жедел жады","Адамның интеллектуалдық әрекеттерін орындай алатын компьютерлік жүйелер","Интернет браузері","Мәтіндік редактор"],1],
+["«Жасанды интеллект» термині қай жылы пайда болды?",["1936","1976","1956","1996"],2],
+["Бұл терминді кім ұсынды?",["Джон Маккарти","Билл Гейтс","Стив Джобс","Илон Маск"],0],
+["Тьюринг тесті не үшін қолданылады?",["Компьютер жылдамдығын өлшеу","Вирус іздеу","Интернет жылдамдығын тексеру","Машинаның адамша әрекет ете алатынын тексеру"],3],
+["Машиналық оқыту дегеніміз не?",["Компьютерді қолмен жөндеу","Алгоритмнің деректерден заңдылықтарды үйреніп, нәтижесін жақсартуы","Оқушыларды компьютермен оқыту","Бағдарламаны жою"],1],
+["Нейрондық желі қандай үлгіге негізделген?",["Адам миының нейрондары","Күн жүйесі","Электр желісі","Жүрек қызметі"],0],
+["Қайсысы ЖИ қолдану мысалы?",["Қарындаш","Принтер қағазы","Дауыстық көмекші (Siri, Google Assistant)","Флешка"],2],
+["Чат-бот дегеніміз не?",["Антивирус","Бейне ойын","Жад құрылғысы","Адаммен мәтін не дауыс арқылы сөйлесетін бағдарлама"],3],
+["ЖИ-ді оқыту үшін ең алдымен не қажет?",["Деректер","Қағаз","Монитор","Принтер"],0],
+["Компьютерлік көру (computer vision) қандай міндетті шешеді?",["Файлдарды көшіру","Суреттегі нысандарды тану","Құжатты басып шығару","Желіге қосылу"],1],
+["Сөйлеуді тану дегеніміз не?",["Суретті сығу","Файлды архивтеу","Экран жарықтығын реттеу","Дыбыстық сөйлеуді мәтінге айналдыру"],3],
+["ЖИ-дің артықшылығы қайсы?",["Ешқашан қателеспейді","Электр қуатын қажет етпейді","Үлкен көлемдегі деректі жылдам өңдейді","Адамның бақылауын мүлде қажет етпейді"],2],
+["ЖИ-мен байланысты қауіптердің бірі қайсы?",["Жеке деректердің таралып кетуі","Монитордың сынуы","Пернетақтаның тозуы","Тінтуірдің жоғалуы"],0],
+["Дипфейк дегеніміз не?",["Жаңа бағдарламалау тілі","ЖИ арқылы жасалған жалған бейне не аудио","Антивирус түрі","Жад түрі"],1],
+["ЖИ жасауда ең көп қолданылатын бағдарламалау тілі қайсы?",["Word","Paint","Python","Excel"],2],
+["Робот дегеніміз не?",["Тек бағдарлама","Интернет сайт","Жад түрі","Белгілі әрекеттерді автоматты түрде орындайтын құрылғы"],3],
+["Ұсыныстар жүйесіне мысал қайсы?",["YouTube-тың саған ұнайтын бейнелерді ұсынуы","Қағаз кітап","Сызғыш","Флешка"],0],
+["Генеративті ЖИ не істейді?",["Тек файлдарды жояды","Жаңа мәтін, сурет, музыка жасайды","Тек деректерді сақтайды","Желіні өшіреді"],1],
+["ChatGPT қандай құрал?",["Графикалық редактор","Электрондық кесте","Операциялық жүйе","Тілдік модельге негізделген чат-бот"],3],
+["ЖИ берген жауапқа қалай қарау керек?",["Сөзсіз сену","Тексермей көшіру","Басқа дереккөздермен салыстырып тексеру","Ешқашан қолданбау"],2],
+["Промпт дегеніміз не?",["ЖИ-ге берілетін сұраныс не нұсқау","Вирус түрі","Монитор түрі","Файл кеңейтімі"],0],
+["Бақыланатын (supervised) оқыту дегеніміз не?",["Деректерсіз оқыту","Жауаптары белгілі, белгіленген деректермен оқыту","Тек ойын арқылы оқыту","Оқытусыз жұмыс істеу"],1],
+["ЖИ шешімдеріндегі біржақтылықтың (bias) басты себебі қандай?",["Интернет жылдамдығы","Экран өлшемі","Тінтуір түрі","Оқыту деректеріндегі теңгерімсіздік"],3],
+["Өздігінен жүретін көлікте ЖИ не үшін қолданылады?",["Радио қосу үшін","Дөңгелек жасау үшін","Жолды, кедергілерді тану және шешім қабылдау үшін","Жанармай құю үшін"],2],
+["Қайсысы ЖИ-ге жатпайды?",["Бет-әлпетті тану","Автоматты аудармашы","Қарапайым сызғыш","Шахмат ойнайтын бағдарлама"],2]
+];
+const L="ABCD",$=id=>document.getElementById(id);
+let i=0,score=0,picks=[];
+function show(s){["start","quiz","end"].forEach(x=>$(x).classList.toggle("hide",x!==s))}
+function start(){i=0;score=0;picks=[];show("quiz");render()}
+function render(){
+const q=Q[i];
+$("num").textContent="Сұрақ "+(i+1)+" / "+Q.length;
+$("sc").textContent="Дұрыс: "+score;
+$("pb").style.width=(i/Q.length*100)+"%";
+$("qt").textContent=q[0];
+$("next").classList.add("hide");
+$("next").textContent=i===Q.length-1?"Нәтижені көру":"Келесі сұрақ";
+const o=$("opts");o.innerHTML="";
+q[1].forEach((t,k)=>{
+const b=document.createElement("button");
+b.className="opt";
+b.innerHTML="<b>"+L[k]+"</b><span></span>";
+b.lastChild.textContent=t;
+b.onclick=()=>pick(k);
+o.appendChild(b);
+});
+}
+function pick(k){
+const c=Q[i][2];
+picks[i]=k;
+if(k===c)score++;
+[...$("opts").children].forEach((b,n)=>{
+b.disabled=true;
+if(n===c)b.classList.add("ok");
+else if(n===k)b.classList.add("bad");
+});
+$("sc").textContent="Дұрыс: "+score;
+$("next").classList.remove("hide");
+$("next").focus();
+}
+function finish(){
+show("end");
+const p=Math.round(score/Q.length*100);
+$("fin").textContent=score+" / "+Q.length;
+$("grade").textContent=p>=85?"Өте жақсы!":p>=65?"Жақсы":p>=40?"Қанағаттанарлық":"Тақырыпты қайталаңыз";
+$("msg").textContent="Нәтиже: "+p+"%. Төменде қателескен сұрақтар көрсетілген.";
+const r=$("rev");r.innerHTML="";
+let wrong=0;
+Q.forEach((q,n)=>{
+if(picks[n]!==q[2]){
+wrong++;
+const d=document.createElement("div");d.className="rev";
+const a=document.createElement("div");a.textContent=(n+1)+". "+q[0];a.style.fontWeight="700";
+const b=document.createElement("small");b.textContent="Сіздің жауабыңыз: "+L[picks[n]]+") "+q[1][picks[n]];
+const c=document.createElement("div");c.style.color="var(--ok)";c.textContent="Дұрыс жауап: "+L[q[2]]+") "+q[1][q[2]];
+d.append(a,b,c);r.appendChild(d);
+}
+});
+if(!wrong){$("msg").textContent="Нәтиже: 100%. Қате жоқ!"}
+window.scrollTo(0,0);
+}
+$("go").onclick=start;
+$("again").onclick=start;
+$("next").onclick=()=>{i++;i<Q.length?render():finish()};
+</script>
+</body>
+</html>
